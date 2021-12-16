@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bb><wm><bb><wm><rules/></wm></bb><rules><rule name="1" oznach="1"/></rules><facts><fact AttrPath="ОБЪЕКТ1.АТРИБУТ5" Value="да" Asked="F"/><fact AttrPath="ОБЪЕКТ1.АТРИБУТ2" Value="22" Asked="T" Belief="100"/><fact AttrPath="ОБЪЕКТ1.АТРИБУТ1" Value="да" Belief="100" MaxBelief="100" Accuracy="0" Status="T" Asked="T"/><fact AttrPath="ОБЪЕКТ1.АТРИБУТ4" Value="" Belief="50" MaxBelief="100" Accuracy="0" Status="T" Asked="T"/></facts><rules/></wm></bb>

@@ -1,0 +1,85 @@
+scenario Main;
+  send СоздатьГлавнуюФорму;
+end;
+
+subscenario ВыводПриглашения;
+  send 'set Caption to $'О программе...$'' to AboutBox;
+  send 'set PictureFile to $'about.bmp$'' to AboutBox;
+  send 'set ProgramName to [$'Имя программы$', $'(версия 1.0)$']' to AboutBox;
+  send concat('set AboutText to ',
+               text('  Моя первая экспертная система',
+                    '',
+                    'Разработчики:',
+                    '  - Иванов И.И.',
+                    '  - Иванова И.И.',
+                    '',
+                    'Руководитель проекта:',
+                    '  - Петров П.П.',
+                    '',
+                    'РГСУ, 2004')) to AboutBox;
+  send 'activate' to AboutBox;
+end;
+
+subscenario Выход;
+  stop;
+end;
+
+subscenario ЗапускРешателя;   
+  send '<message ProcName="TWorkMemoryConfigurator"/>' to ESKernel;
+  send '<message ProcName="TSolve"/>' to ESKernel;  
+end;
+
+subscenario ОчисткаФактов;
+  /set #ОБЪЕКТ1.АТРИБУТ1# to '';/
+  send '<message ProcName=$'TKnowledgeBase.ClearWorkMemory$'></message>' to ESKernel;
+end;
+
+subscenario НачатьСеанс;
+  send concat('output ', string('Здравствуй, мир!'), 'as String on Left') to Informer;
+
+  send 'activate' to Informer;  
+end;
+
+subscenario ВыводОтчета;
+  send concat('add',
+              text('      По результатам проведенного исследования система',
+                   '  рекомендует следующее...')) to Reporter;
+  send 'activate' to Reporter;
+end;
+
+/ ----------------------------- меню Инструменты ------------------------------ /
+
+subscenario ЗапускРедактора;
+  send '<message ProcName="Run"></message>' to KBEditor;
+end;
+
+subscenario ЗапускРедактораСценария;
+  send '<message ProcName="Run"></message>' to DSDLEditor;
+end;
+
+subscenario ПоказатьОбъяснения;
+  send '<message ProcName="TKnowledgeBase.ShowTrassa"></message>' to ESKernel;
+end;
+
+
+/ --------------------------------------  Сообщения -------------------------------------- /
+
+message СоздатьГлавнуюФорму to Alternativer;
+  line 'set Caption to $'Моя первая экспертная система$'';
+  line 'set PictureFile to $'es.bmp$'';
+
+  line 'on $'Файл/Выход$' execute Выход';
+
+  line 'on $'Консультация/Начать сеанс$' execute НачатьСеанс';
+  line 'on $'Консультация/Объяснения$' execute ПоказатьОбъяснения';
+  line 'on $'Консультация/Отчет$' execute ВыводОтчета';
+
+  line 'on $'Инструменты/Редактор базы знаний...$' execute ЗапускРедактора';
+  line 'on $'Инструменты/Редактор сценариев диалога...$' execute ЗапускРедактораСценария';
+  
+  line 'on $'Помощь/О программе...$' execute ВыводПриглашения';
+
+  line 'activate';
+end;
+
+

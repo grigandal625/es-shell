@@ -1,0 +1,5 @@
+// Datafile written by Mathcad
+// 01/06/05 21:01:36
+
+.MATRIX 0 0 7 1
+       0       1       4       9      16      25 "dmitri"

@@ -1,0 +1,11 @@
+regsvr32 /s DLL\board.dll
+regsvr32 /s DLL\brokerlib.dll
+regsvr32 /s DLL\dialogerlib.dll
+regsvr32 /s DLL\dsdleditorlib.dll
+regsvr32 /s DLL\esruntime.dll
+regsvr32 /s DLL\expllib.dll
+regsvr32 /s DLL\kbtools.dll
+regsvr32 /s DLL\scriptlib.dll
+regsvr32 /s DLL\starterlib.dll
+regsvr32 /s DLL\solverx.dll
+regsvr32 /s DLL\readkb.dll

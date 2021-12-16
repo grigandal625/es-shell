@@ -1,0 +1,397 @@
+scenario Main;
+  / это комментарий /
+  send СоздатьГлавнуюФорму;
+end;
+
+subscenario ВыводПриглашения;
+  send 'set Caption to $'О программе...$'' to AboutBox;
+  send 'set PictureFile to $'about.bmp$'' to AboutBox;
+  send 'set ProgramName to [$'ИЭС Диагноз$', $'(версия 1.0)$']' to AboutBox;
+  send concat('set AboutText to ',
+               text('  Демонстрационная интегрированная экспертная система "Диагноз". Разработано средствами инструментального комплекса АТ-ТЕХНОЛОГИЯ.',
+                    '',
+                    'Разработчик:',
+                    '  - Демидов Д.В.',
+                    '',
+                    'Научный руководитель:',
+                    '  - Рыбина Г.В.',
+                    '',
+                    'МИФИ, Лаборатория "Системы Искусственного Интеллекта", 2007')) to AboutBox;
+  send 'activate' to AboutBox;
+end;
+
+subscenario Выход;
+  stop;
+end;
+
+subscenario ОчисткаФактов;
+  set #ОБЪЕКТ1.АТРИБУТ1# to '';
+  set #ОБЪЕКТ1.АТРИБУТ2# to '';
+  set #ОБЪЕКТ1.АТРИБУТ3# to '';
+  set #ОБЪЕКТ1.АТРИБУТ4# to '';
+  set #ОБЪЕКТ1.АТРИБУТ5# to '';
+  set #ОБЪЕКТ1.АТРИБУТ6# to '';
+  send '<message ProcName=$'TKnowledgeBase.ClearWorkMemory$'></message>' to ESKernel;
+end;
+
+subscenario ВыводДиагноза;
+  send 'set Caption to $'Значения атрибутов$'' to Informer;
+
+
+  send concat('output ', string(concat('Болен = "', #ОБЪЕКТ1.АТРИБУТ1#, '"')),
+              'as String on Left') to Informer;
+
+  send concat('output ', string(concat('ОРЗ = "', #ОБЪЕКТ1.АТРИБУТ5#, '"')),
+              'as String on Left') to Informer;
+
+  send concat('output ', string(concat('Грипп = "', #ОБЪЕКТ1.АТРИБУТ6#, '"')),
+              'as String on Left') to Informer;
+
+  send concat('output ', string(concat('Пациент кашляет = "', #ОБЪЕКТ1.АТРИБУТ2#, '"')),
+              'as String on Left') to Informer;
+
+  send concat('output ', string(concat('Пациент чихает = "', #ОБЪЕКТ1.АТРИБУТ3#, '"')),
+              'as String on Left') to Informer;
+
+  send concat('output ', string(concat('Пациент температурит = "', #ОБЪЕКТ1.АТРИБУТ4#, '"')),
+              'as String on Left') to Informer;
+
+  send 'activate' to Informer;
+
+end;
+
+
+subscenario НачатьСеанс1;
+
+  send 'set Caption to $'Содержание сеанса 1$'' to Informer;
+
+  send concat('output ', text(
+			'В этом сеансе опрашивается состояние пациента,',
+			'а затем запускается решатель.',
+			'На основании собранных данных решатель выполняет ',
+			'прямой вывод глубины 2.',
+			'Отчет выдается в виде сообщения пользователю.'),
+              'as String on Left') to Informer;
+
+  send 'activate' to Informer;
+
+  / поехали /
+
+  execute ОчисткаФактов;
+  
+  send УзнатьАтрибут4;
+  send УзнатьАтрибут3;
+  send УзнатьАтрибут2;  
+
+  execute ЗапускРешателяПрямой;
+
+  execute ВыводДиагноза;
+end;
+
+
+subscenario НачатьСеанс2;
+  
+  send 'set Caption to $'Содержание сеанса$'' to Informer;
+
+  send concat('output ', text(
+			'В этом сеансе заранее выясняется значение только ',
+			'одного симптома, a значения других симптомов ',
+			'запрашиваются решателем по мере необходимости.',
+			'При этом решатель выполняет смешанный вывод.',
+			'Отчет выдается в виде текста.'),
+              'as String on Center') to Informer;
+
+  send 'activate' to Informer;
+
+  / поехали /
+
+  execute ОчисткаФактов;  
+
+  send УзнатьАтрибут3;
+
+  execute ЗапускРешателяОбратный;
+
+  execute РезультатыСеанса2;
+
+end;
+
+subscenario РезультатыСеанса2;
+ send concat('add ',
+              text('Данные о пациенте:', '')) to Reporter;
+
+  send concat('add ',
+              string(concat('     ФИО: Иванов И.И.'))) to Reporter;
+
+  send concat('add ',
+              text('', '', 'Жалобы пациента:', '')) to Reporter;
+
+ Кашель:
+  when or(eqv(#ОБЪЕКТ1.АТРИБУТ2#, 'нет'), eqv(#ОБЪЕКТ1.АТРИБУТ2#, '')) goto Нос;
+  send concat('add ',
+              string('     - У пациента наблюдается кашель.')) to Reporter;
+
+ Нос:
+  when or(eqv(#ОБЪЕКТ1.АТРИБУТ3#, 'нет'), eqv(#ОБЪЕКТ1.АТРИБУТ3#, '')) goto Температура;
+  send concat('add ',
+              string('     - Пациент жалуется на насморк.')) to Reporter;
+
+ Температура:
+  when or(eqv(#ОБЪЕКТ1.АТРИБУТ4#, 'нет'), eqv(#ОБЪЕКТ1.АТРИБУТ4#, '')) goto Диагноз;
+  send concat('add ',
+              string('     - У пациента высокая температура.')) to Reporter;
+
+ Диагноз:
+  send concat('add ',
+              text('', '', 'Диагноз: ')) to Reporter;
+  
+  when eqv(#ОБЪЕКТ1.АТРИБУТ1#,'нет') goto Здоров;
+  send concat('add ',
+              string('     Пациент болен:')) to Reporter;
+  
+  send concat('add ',
+              string(concat('     Обнаружено ли ОРЗ?     ...', #ОБЪЕКТ1.АТРИБУТ5#))) to Reporter;
+  send concat('add ',
+              string(concat('     Выявлен ли грипп?      ...', #ОБЪЕКТ1.АТРИБУТ6#))) to Reporter;
+
+  goto Конец;
+
+ Здоров:
+  send concat('add',
+              text('      По результатам проведенного исследования система',
+                   '  не выявила серьезных заболеваний.')) to Reporter;
+
+ Конец:
+
+  send 'activate' to Reporter;
+
+end;
+
+ 
+subscenario НачатьСеанс3;
+
+  send concat('output ', text(
+			'В этом сеансе выявление симптомов происходит полностью ',
+			'под контролем решателя с помощью уточняющих поддиалогов, ',
+			'при этом происходит обратный вывод.',
+			'Отчет выдается в виде документа Excel.'),
+              'as String on Center') to Informer;
+  send 'activate' to Informer;
+
+  execute ОчисткаФактов;
+  execute ЗапускРешателяСмешанный;
+
+  execute СформироватьОтчетExcel;
+end;
+
+subscenario СформироватьОтчетExcel;
+  send concat('<message ProcName="Run">',
+	      '  <func name="form" module="report">',
+	      '    <param type="string">Иванов И.И.</param>',
+	      '    <param type="string">', #ОБЪЕКТ1.АТРИБУТ2#, '</param>',
+	      '    <param type="string">', #ОБЪЕКТ1.АТРИБУТ3#, '</param>',
+	      '    <param type="string">', #ОБЪЕКТ1.АТРИБУТ4#, '</param>',
+	      '    <param type="string">', #ОБЪЕКТ1.АТРИБУТ1#, '</param>',
+              '    <param type="string">', #ОБЪЕКТ1.АТРИБУТ5#, '</param>',
+              '    <param type="string">', #ОБЪЕКТ1.АТРИБУТ6#, '</param>',
+	      '  </func>', 
+	      '</message>') to Scripter;
+end;
+
+/ ----------------------------- Инструменты ------------------------------ /
+
+subscenario ЗапускРешателяПрямой;
+  send '<message ProcName="TWorkMemoryConfigurator"><setup Style="forward"/></message>' to ESKernel;
+  send '<message ProcName="TSolve"/>' to ESKernel;  
+end;
+
+subscenario ЗапускРешателяОбратный;
+  send '<message ProcName="TWorkMemoryConfigurator"><setup Style="backward"/></message>' to ESKernel;
+  send '<message ProcName="AddGoal"><goal AttrPath="ОБЪЕКТ1.АТРИБУТ1" /></message>' to ESKernel;
+  send '<message ProcName="TSolve"/>' to ESKernel;  
+end;
+
+subscenario ЗапускРешателяСмешанный;
+  send '<message ProcName="TWorkMemoryConfigurator"><setup Style="mixed"/></message>' to ESKernel;
+  send '<message ProcName="AddGoal"><goal AttrPath="ОБЪЕКТ1.АТРИБУТ1" /></message>' to ESKernel;
+  send '<message ProcName="TSolve"/>' to ESKernel;  
+end;
+
+subscenario ЗапускОтладчика;     
+  send '<message ProcName="Debug"/>' to ESKernel;  
+end;
+
+subscenario ЗапускРедактора;
+  send '<message ProcName="Run"></message>' to KBEditor;
+end;
+
+subscenario ЗапускВерификатора;
+  send '<message ProcName="Run"></message>' to KBVerifier;
+end;
+
+subscenario ЗапускРедактораСценария;
+  send '<message ProcName="Run"></message>' to DSDLEditor;
+end;
+
+subscenario ПоказатьОбъяснения;
+  send '<message ProcName="TKnowledgeBase.ShowTrassa"></message>' to ESKernel;
+end;
+
+subscenario ЗапускОбъяснителя;
+  send '<message ProcName="Run"></message>' to Explainer;
+end;
+
+subscenario ПоказатьКласснуюДоску;
+  send '<message ProcName="Run"><func name="ShowBB" module="report" /></message>' to Scripter;
+end;
+
+subscenario ЗапускДизайнераОбъяснений;
+  send '<message ProcName="Design"></message>' to Explainer;
+end;
+
+subscenario ЗапускРедактораОбъяснений;
+
+    send concat('<message ProcName="Run">',
+	      '  <func name="OpenXML" module="report">',
+	      '    <param type="string">exp.xml</param>',
+	      '  </func>', 
+   	      '</message>') to Scripter;
+
+end;
+
+subscenario ЗапускКонфигуратора;
+    send concat('<message ProcName="Run">',
+	      '  <func name="OpenXML" module="report">',
+	      '    <param type="string">config.xml</param>',
+	      '  </func>', 
+   	      '</message>') to Scripter;
+
+end;
+
+subscenario СгенерироватьОбъяснения;
+  send '<message ProcName="Generate"><KBFileName>diagnosis.kbs</KBFileName><ExplFileName>genexp.xml</ExplFileName></message>' to Explainer;
+
+    send concat('<message ProcName="Run">',
+	      '  <func name="OpenXML" module="report">',
+	      '    <param type="string">genexp.xml</param>',
+	      '  </func>', 
+   	      '</message>') to Scripter;
+
+end;
+
+
+subscenario ТекстовыйРедакторБЗ;
+
+    send concat('<message ProcName="Run">',
+	      '  <func name="OpenEM" module="report">',
+	      '    <param type="string">diagnosis.kbs</param>',
+	      '  </func>', 
+   	      '</message>') to Scripter;
+
+end;
+
+subscenario ТекстовыйРедакторСД;
+
+    send concat('<message ProcName="Run">',
+	      '  <func name="OpenEM" module="report">',
+	      '    <param type="string">diagnosis.dsf</param>',
+	      '  </func>', 
+   	      '</message>') to Scripter;
+
+end;
+
+/ --------------------------------------  Сообщения -------------------------------------- /
+
+message СоздатьГлавнуюФорму to Alternativer;
+  line 'set Caption to $'Система "Диагноз", МИФИ 2007$'';
+  line 'set PictureFile to $'diagnosis.bmp$'';
+
+  line 'on $'Файл/Выход$' execute Выход';
+
+  line 'on $'Консультация/Начать сеанс (Прямой вывод)$' execute НачатьСеанс1';
+  line 'on $'Консультация/Начать сеанс (Обратный вывод)$' execute НачатьСеанс2';
+  line 'on $'Консультация/Начать сеанс (Смешанный вывод)$' execute НачатьСеанс3';
+  line 'on $'Консультация/Объяснения$' execute ЗапускОбъяснителя';
+  
+  line 'on $'Инструменты/Интеллектуальный редактор базы знаний...$' execute ЗапускРедактора';
+  line 'on $'Инструменты/Специализированный редактор сценариев диалога...$' execute ЗапускРедактораСценария';  
+  line 'on $'Инструменты/Редактор объяснений...$' execute ЗапускРедактораОбъяснений';
+  line 'on $'Инструменты/Сгенерировать записанные объяснения...$' execute СгенерироватьОбъяснения';
+  line 'on $'Инструменты/Дизайнер объяснений...$' execute ЗапускДизайнераОбъяснений';
+  line 'on $'Инструменты/Конфигурация прототипа...$' execute ЗапускКонфигуратора';
+  line 'on $'Инструменты/База знаний на ЯПЗ...$' execute ТекстовыйРедакторБЗ';
+  line 'on $'Инструменты/Сценарий диалога...$' execute ТекстовыйРедакторСД';
+  
+  line 'on $'Отладка/Режим отладки...$' execute ЗапускОтладчика';
+  line 'on $'Отладка/Просмотр трассы вывода$' execute ПоказатьОбъяснения';
+  line 'on $'Отладка/Просмотр классной доски...$' execute ПоказатьКласснуюДоску';
+  line 'on $'Отладка/Вызов отчета$' execute СформироватьОтчетExcel';
+
+  line 'on $'Помощь/О программе...$' execute ВыводПриглашения';
+  line 'activate';
+end;
+
+
+/ ------------------------------------ Узнаем симптомы ------------------------------------ /
+subscenario  ОбъяснитьПочему1_2;
+  send '<message ProcName="Why"><obj>1</obj><attr>2</attr></message>' to Explainer;
+end;
+
+message УзнатьАтрибут2 to Asker about #ОБЪЕКТ1.АТРИБУТ2#;
+  line 'set Caption to $'Выявление симптомов$'';
+  line 'on $'Почему система задает этот вопрос?$' execute ОбъяснитьПочему1_2';
+
+  line concat('output ',
+              text('Симптом1. Пациент кашляет?'),
+              ' as Question');
+
+  line concat('input ',
+              string(''),
+              ' to ',
+              name('ОБЪЕКТ1.АТРИБУТ2'),
+              ' as Variant from ',
+              text('да', 'нет'));
+
+  line 'activate';
+end;
+
+subscenario  ОбъяснитьПочему1_3;
+  send '<message ProcName="Why"><obj>1</obj><attr>3</attr></message>' to Explainer;
+end;
+
+message УзнатьАтрибут3 to Asker about #ОБЪЕКТ1.АТРИБУТ3#;
+  line 'set Caption to $'Выявление симптомов$'';
+  line 'on $'Почему система задает этот вопрос?$' execute ОбъяснитьПочему1_3';
+  line concat('output ',
+              text('Симптом2. Пациент чихает?'),
+              ' as Question');
+
+  line concat('input ',
+              string(''),
+              ' to ',
+              name('ОБЪЕКТ1.АТРИБУТ3'),
+              ' as Variant from ',
+              text('да', 'нет'));
+
+  line 'activate';
+end;
+
+subscenario  ОбъяснитьПочему1_4;
+  send '<message ProcName="Why"><obj>1</obj><attr>4</attr></message>' to Explainer;
+end;
+
+message УзнатьАтрибут4 to Asker about #ОБЪЕКТ1.АТРИБУТ4#;
+  line 'set Caption to $'Выявление симптомов$'';
+  line 'on $'Почему система задает этот вопрос?$' execute ОбъяснитьПочему1_4';
+  line concat('output ',
+              text('Симптом3. Температура высокая?'),
+              ' as Question');
+
+  line concat('input ',
+              string(''),
+              ' to ',
+              name('ОБЪЕКТ1.АТРИБУТ4'),
+              ' as Variant from ',
+              text('да', 'нет'));
+
+  line 'activate';
+end;

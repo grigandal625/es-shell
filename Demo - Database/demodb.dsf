@@ -1,0 +1,158 @@
+scenario Main;  
+  send СоздатьГлавнуюФорму;
+end;
+
+subscenario Выход;
+  stop;
+end;
+
+subscenario ЗапускРешателя;   
+  send '<message ProcName="TWorkMemoryConfigurator"/>' to ESKernel;
+  send '<message ProcName="TSolve"/>' to ESKernel;  
+end;
+
+subscenario ОчисткаФактов;
+  set #ОБЪЕКТ1.АТРИБУТ1# to '';
+  set #ОБЪЕКТ1.АТРИБУТ2# to '';
+  set #ОБЪЕКТ1.АТРИБУТ3# to '';
+  set #ОБЪЕКТ1.АТРИБУТ4# to '';
+  set #ОБЪЕКТ1.АТРИБУТ5# to '';
+  send '<message ProcName=$'TKnowledgeBase.ClearWorkMemory$'></message>' to ESKernel;
+end;
+
+
+subscenario НачатьСеанс;
+ 
+  send 'set Caption to $'Описание эксперимента$'' to Informer;
+
+  send concat('output ', text(
+			'Факт наличия подходящих коммутаторов ',
+			'устанавливается в результате запроса ',
+			'к базе данных сетевого оборудования network. '),
+              'as String on Center') to Informer;
+
+  send 'activate' to Informer;
+
+  / поехали /
+
+  execute ОчисткаФактов;
+
+  set #ОБЪЕКТ1.АТРИБУТ5# to 'да'; /поддержка технологии NWay/
+  send УзнатьАтрибут2;
+
+  execute ЗапускРешателя;
+
+  execute РезультатыСеанса;
+
+end;
+
+
+subscenario РезультатыСеанса;
+
+  send concat('add ',
+              text('Результаты:', '')) to Reporter;
+
+  send concat('add ',
+              string(concat('     - Планируется ли использование управляемых коммутаторов.', #ОБЪЕКТ1.АТРИБУТ1#))) to Reporter;
+
+  send concat('add ',
+              string(concat('     - Минимальное число портов: ', #ОБЪЕКТ1.АТРИБУТ2#))) to Reporter;
+
+  send concat('add ',
+              string(concat('     - Найдены ли подходяющие коммутаторы в БД: ', #ОБЪЕКТ1.АТРИБУТ4#))) to Reporter;
+
+  send concat('add ',
+              text('', 'Выведенный факт:', '')) to Reporter;
+  
+  send concat('add ',
+              string(concat('     - Возможно ли использование технологии NWay: ', #ОБЪЕКТ1.АТРИБУТ3#))) to Reporter;
+
+  send 'activate' to Reporter;
+
+end;
+
+
+/ ----------------------------- меню Инструменты ------------------------------ /
+
+subscenario ЗапускРедактораСценария;
+  send '<message ProcName="Run"></message>' to DSDLEditor;
+end;
+
+subscenario ЗапускРедактора;
+  send '<message ProcName="Run"></message>' to KBEditor;
+end;
+
+subscenario ПоказатьКласснуюДоску;
+  send '<message ProcName="Run"><func name="ShowBB" module="database" /></message>' to Scripter;
+end;
+
+subscenario ЗапускОбъяснителя;
+  send '<message ProcName="Run"></message>' to Explainer;
+end;
+
+/ --------------------------------------  Сообщения -------------------------------------- /
+
+message СоздатьГлавнуюФорму to Alternativer;
+  line 'set Caption to $'Демонстрационный прототип работы с базой данных$'';
+  line 'set PictureFile to $'demodb.bmp$'';
+  line 'on $'Файл/Выход$' execute Выход';
+  
+  line 'on $'Консультация/Начать сеанс$' execute НачатьСеанс';  
+  line 'on $'Консультация/Объяснения$' execute ЗапускОбъяснителя';
+
+  line 'on $'Инструменты/Редактор сценариев диалога...$' execute ЗапускРедактораСценария';
+  line 'on $'Инструменты/Редактор базы знаний...$' execute ЗапускРедактора';
+  line 'on $'Инструменты/Классная доска...$' execute ПоказатьКласснуюДоску'; 
+
+  line 'activate';
+end;
+
+
+/ ------------------------------------ Узнаем симптомы ------------------------------------ /
+
+message УзнатьАтрибут1 to Asker about #ОБЪЕКТ1.АТРИБУТ1#;
+  line 'set Caption to $'Выявление требований к ЛВС. Уточняющий поддиалог.$'';
+
+  line concat('output ',
+              text('Планируется ли использование управляемых коммутаторов?'),
+              ' as Question');
+
+  line concat('input ',
+              string(''),
+              ' to ',
+              name('ОБЪЕКТ1.АТРИБУТ1'),
+              ' as Variant from ',
+              text('да', 'нет'));
+
+  line 'activate';
+end;
+
+
+message УзнатьАтрибут2 to Asker about #ОБЪЕКТ1.АТРИБУТ2#;
+  line 'set Caption to $'Выявление требований к ЛВС. Формирование начальной ситуации.$'';
+
+  line concat('output ',
+              text('Укажите, пожалуйста, минимальное число портов в коммутаторах (1-48)'),
+              ' as Question');
+
+  line concat('input ',
+              string(''),
+              ' to ',
+              name('ОБЪЕКТ1.АТРИБУТ2'),
+              ' as Number');
+
+  line 'activate';
+end;
+
+
+message УзнатьАтрибут4 to Scripter about #ОБЪЕКТ1.АТРИБУТ4#;  
+
+  line concat('<message ProcName="Run">',
+	      '  <func name="GetAttrValue" module="database">',
+	      '    <param type="number">', #ОБЪЕКТ1.АТРИБУТ2#, '</param>',
+              '    <param type="string">', #ОБЪЕКТ1.АТРИБУТ5#, '</param>',
+	      '  </func>', 
+	      '</message>');  
+end;
+
+  

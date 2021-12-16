@@ -1,0 +1,34 @@
+scenario Main;
+  / это комментарий /
+  send СоздатьГлавнуюФорму;
+end;
+
+subscenario Выход;
+  stop;
+end;
+
+
+/ ----------------------------- меню Инструменты ------------------------------ /
+
+subscenario ПоказатьДоску;
+  send '<message ProcName="Run"><func name="Add2BB" module="unit1"/></message>' to Scripter;  
+  send '<message ProcName="Run"><func name="ShowBB" module="unit1"/></message>' to Scripter;
+end;
+
+subscenario UseMCAD;
+  send '<message ProcName="Run"><func name="UseMCAD" module="unit1"/></message>' to Scripter;  
+end;
+
+/ --------------------------------------  Сообщения -------------------------------------- /
+
+message СоздатьГлавнуюФорму to Alternativer;
+  line 'set Caption to $'Оболочка ЭС (С) МИФИ$'';
+  line 'set PictureFile to $'greengrad.bmp$'';
+
+  line 'on $'Файл/Выход$' execute Выход';
+
+  line 'on $'Консультация/Классная доска$' execute ПоказатьДоску';
+  line 'on $'Консультация/Mathcad$' execute UseMCAD';
+  line 'activate';
+end;
+

@@ -1,0 +1,21 @@
+<config>
+
+<object Name='Dialoger' Class='DialogerLib.Dialoger'>
+<config>
+<FileName>example.dsf</FileName>
+</config>
+</object>
+
+<object Name='Scripter' Class='ScriptLib.Runner'>
+<config>
+  <script Timeout="0" Language="VBScript" />
+  <file>unit1.vb</file>
+</config>
+</object>
+
+<message RcvrName='Dialoger'>
+<message ProcName='Run'>
+</message>
+</message>
+
+</config>

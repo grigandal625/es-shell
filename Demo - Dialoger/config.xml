@@ -1,0 +1,20 @@
+<config>
+
+<object Name='DSDLEditor' Class='DSDLEditorLib.DSDLEditor'>
+<config>
+<FileName>demo.dsf</FileName>
+</config>
+</object>
+
+<object Name='Dialoger' Class='DialogerLib.Dialoger'>
+<config>
+<FileName>demo.dsf</FileName>
+</config>
+</object>
+
+<message RcvrName='Dialoger'>
+<message ProcName='Run'>
+</message>
+</message>
+
+</config>

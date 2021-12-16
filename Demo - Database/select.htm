@@ -1,0 +1,28 @@
+<html>
+<script language="VBScript">  
+
+  Dim Connection
+  Set Connection = CreateObject("ADODB.Connection")
+  Connection.ConnectionTimeOut = 15
+  Connection.CommandTimeOut = 300
+  Connection.Open "DSN=network", "", ""  
+  'MsgBox Connection.State
+
+  strSelect = "select count(id) as c from Hub where (ports >= 7) and nway" 
+
+  Msgbox strSelect
+
+  Dim RS
+  Set RS = CreateObject("ADODB.Recordset")  
+  RS.Open strSelect, Connection, 1, 1  
+  
+  RS.MoveFirst()
+
+  Msgbox "Найдено коммутаторов: " + CStr(RS.Fields("c").Value)
+
+  RS.Close
+  Connection.Close 
+
+
+</script>
+</html>

@@ -1,0 +1,27 @@
+<config>
+    <object name="DSDLEditor" class="DSDLEditorLib.DSDLEditor">
+        <config>
+            <FileName>es.dsf</FileName>
+        </config>
+    </object>
+
+    <object name="Dialoger" class="DialogerLib.Dialoger">
+        <config>
+            <FileName>es.dsf</FileName>
+        </config>
+    </object>
+
+    <object name="KBEditor" class="kbtools.AutoKBEditor">
+        <config>
+            <FileName>es.kbs</FileName>
+        </config>
+    </object>
+
+    <object name="ESKernel" class="EsRunTime.CoESRunTime">
+        <config> </config>
+    </object>
+
+    <message RcvrName="Dialoger">
+        <message ProcName="Run"> </message>
+    </message>
+</config>

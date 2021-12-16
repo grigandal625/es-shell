@@ -1,0 +1,52 @@
+<config>
+
+  <object Name='DSDLEditor' Class='DSDLEditorLib.DSDLEditor'>
+    <config>
+      <FileName>diagnosis.dsf</FileName>
+    </config>
+  </object>
+
+  <object Name='Dialoger' Class='DialogerLib.Dialoger'>
+    <config>
+      <FileName>diagnosis.dsf</FileName>
+    </config>
+  </object>
+
+  <object Name='KBEditor' Class='kbtools.AutoKBEditor'>
+    <config>
+      <FileName>diagnosis.kbs</FileName>
+    </config>
+  </object>
+
+  <object Name='KBVerifier' Class='kbtools.KBVerifier'>
+    <config>
+      <FileName>diagnosis.kbs</FileName>
+    </config>
+  </object>
+
+  <object Name='ESKernel' Class='SolverXLib.SolverX'>
+    <config>
+      <FileName>diagnosis.kbs</FileName>
+    </config>
+  </object>
+
+  <object Name='Scripter' Class='ScriptLib.Runner'>
+    <config>
+      <script Timeout="0" Language="VBScript" Silent="false" />
+      <file>report.vbs</file>
+    </config>
+  </object>
+
+  <object Name='Explainer' Class='ExplLib.Explainer'>
+    <config>
+      <FileName>exp.xml</FileName>
+      <kb>diagnosis.kbs</kb>
+    </config>
+  </object>
+
+  <message RcvrName='Dialoger'>
+    <message ProcName='Run'>
+    </message>
+  </message>
+
+</config>
